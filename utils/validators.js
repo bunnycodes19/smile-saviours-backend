@@ -1,27 +1,38 @@
 const { z } = require("zod");
 
-// Patient Validation
+// ==============================
+// 🧾 PATIENT VALIDATION (FIXED)
+// ==============================
 const patientSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().min(10, "Phone must be at least 10 digits"),
+  name: z.string().min(2, "Name must be at least 2 characters").trim(),
+
+  phone: z.string().min(10, "Phone must be at least 10 digits").trim(),
+
+  // ✅ FIX: aligned with DB + frontend
+  medical_allergies: z.string().optional().or(z.literal("")),
 });
 
-// Appointment Validation
+// ==============================
+// 📅 APPOINTMENT VALIDATION
+// ==============================
 const appointmentSchema = z.object({
   patient_id: z.number(),
-  appointment_date: z.string(), // later: stricter date validation
-  appointment_time: z.string(), // later: stricter time validation
+
+  appointment_date: z.string(), // can tighten later
+  appointment_time: z.string(),
 });
 
-// Auth Validation
+// ==============================
+// 🔐 AUTH VALIDATION
+// ==============================
 const signupSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
+  name: z.string().min(2).trim(),
+  email: z.string().email().trim(),
   password: z.string().min(6),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().trim(),
   password: z.string().min(6),
 });
 
