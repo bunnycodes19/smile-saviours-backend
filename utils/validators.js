@@ -9,7 +9,7 @@ const patientSchema = z.object({
   phone: z.string().min(10, "Phone must be at least 10 digits").trim(),
 
   // ✅ FIX: aligned with DB + frontend
-  medical_allergies: z.string().optional().or(z.literal("")),
+  medical_allergies: z.string().nullable().optional(),
 });
 
 // ==============================
