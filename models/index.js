@@ -2,7 +2,7 @@ const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 const User = require("./user")(sequelize, DataTypes);
 const Patient = require("./patient");
-const Appointment = require("./appointment");
+const Appointment = require("./Appointment");
 
 // 🔗 Initialize models (important if not already done inside model files)
 Patient.initModel && Patient.initModel(sequelize);
