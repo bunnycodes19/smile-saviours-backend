@@ -67,15 +67,30 @@ app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientRoutes);
 app.use("/api/appointments", appointmentRoutes);
 
-// ✅ HEALTH CHECK
-app.get("/", (req, res) => {
-  res.send("API is running...");
+// ✅ PRODUCTION HEALTH CHECK
+app.get("/", async (req, res) => {
+  try {
+    await sequelize.authenticate();
+
+    res.status(200).json({
+      status: "OK",
+      message: "API is running",
+      database: "connected",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "ERROR",
+      message: "Database connection failed",
+    });
+  }
 });
 
 // ✅ ERROR HANDLER (ALWAYS LAST)
 app.use(errorHandler);
 
-// ✅ SERVER START FUNCTION (NO CALLBACK HELL)
+// ✅ SERVER START FUNCTION
 const startServer = async () => {
   try {
     await sequelize.authenticate();
@@ -95,7 +110,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error("Startup error:", error);
-    process.exit(1); // 💀 Kill process if startup fails
+    process.exit(1);
   }
 };
 
