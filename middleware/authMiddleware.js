@@ -1,17 +1,16 @@
 const jwt = require("jsonwebtoken");
+const { User } = require("../models"); // ✅ adjust if your path differs
 
-exports.verifyToken = (req, res, next) => {
+exports.verifyToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    // ❌ No token
     if (!authHeader) {
       return res.status(401).json({
         message: "Access denied. No token provided",
       });
     }
 
-    // Format: "Bearer TOKEN"
     const token = authHeader.split(" ")[1];
 
     if (!token) {
@@ -23,8 +22,22 @@ exports.verifyToken = (req, res, next) => {
     // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Attach user to request
-    req.user = decoded;
+    // ✅ Fetch full user from DB
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
+
+    // ✅ Attach FULL user (not token payload)
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
 
     next();
   } catch (error) {
@@ -33,6 +46,7 @@ exports.verifyToken = (req, res, next) => {
     });
   }
 };
+
 exports.authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
